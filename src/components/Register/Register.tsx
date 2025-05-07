@@ -67,7 +67,11 @@ const Register = () => {
           throw new Error(registerData.message || "Registration failed");
         }
       } catch (err) {
-        setErrMsg(err.message);
+        if (err instanceof Error) {
+          setErrMsg(err.message);
+        } else {
+          setErrMsg("An unexpected error occurred");
+        }
       } finally {
         setIsLoading(false);
       }

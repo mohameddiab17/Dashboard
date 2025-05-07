@@ -1,20 +1,35 @@
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import "primereact/resources/themes/lara-light-indigo/theme.css";
-import "primereact/resources/primereact.min.css";
+import { useState, ChangeEvent } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../Store/store";
-
-import { useState } from "react";
+import { DataTable, DataTableFilterMeta } from "primereact/datatable";
+import { Column } from "primereact/column";
 import { FilterMatchMode } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 import { FiDollarSign } from "react-icons/fi";
 
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+
+import { RootState } from "../../Store/store";
+
 const Table = () => {
   const { data } = useSelector((state: RootState) => state.table);
-  const [filters, setFilters] = useState({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+
+  const [filters, setFilters] = useState<DataTableFilterMeta>({
+    global: { value: "", matchMode: FilterMatchMode.CONTAINS },
   });
+
+  const handleFilterInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setFilters({
+      ...filters,
+      global: {
+        value: e.target.value,
+        matchMode: FilterMatchMode.CONTAINS,
+      },
+    });
+  };
+
+  const globalValue =
+    filters.global && "value" in filters.global ? filters.global.value : "";
 
   return (
     <div className="col-span-12 p-4 rounded border border-stone-300">
@@ -26,23 +41,21 @@ const Table = () => {
           See all
         </button>
       </div>
+
       <InputText
         placeholder="Search..."
-        onInput={(e) => {
-          setFilters({
-            global: {
-              value: e.target.value,
-              matchMode: FilterMatchMode.CONTAINS,
-            },
-          });
-        }}
+        value={globalValue}
+        onChange={handleFilterInput}
+        className="mb-3"
       />
+
       <DataTable
         value={data}
         filters={filters}
         paginator
         rows={5}
         className="pt-3"
+        emptyMessage="No records found."
       >
         <Column field="id" header="ID" sortable />
         <Column field="name" header="Name" sortable />
